@@ -1,0 +1,30 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost/quizlet', { useNewUrlParser: true });
+
+const Question = mongoose.model('Question', {
+  question: String,
+  answer: String,
+  isCorrect: Boolean
+});
+
+const app = express();
+app.use(bodyParser.json());
+
+app.post('/questions', async (req, res) => {
+  const question = new Question(req.body);
+  await question.save();
+  res.status(201).send(question);
+});
+
+app.get('/questions', async (req, res) => {
+  const questions = await Question.find();
+  res.send(questions);
+});
+
+app.listen(3000, () => {
+  console.log('Server listening on port 3000!');
+});
