@@ -1,0 +1,89 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function QuestionForm() {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const res = await axios.post('/questions', {
+      question,
+      answer,
+      isCorrect
+    });
+    setQuestion('');
+    setAnswer('');
+    setIsCorrect(false);
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Question:
+        <input
+          type="text"
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+        />
+      </label>
+      <br />
+      <label>
+        Answer:
+        <input
+          type="text"
+          value={answer}
+          onChange={e => setAnswer(e.target.value)}
+        />
+      </label>
+      <br />
+      <label>
+        Is Correct:
+        <input
+          type="checkbox"
+          checked={isCorrect}
+          onChange={e => setIsCorrect(e.target.checked)}
+        />
+      </label>
+      <br />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+function QuestionList() {
+  const [questions, setQuestions] = useState([]);
+
+  useEffect(() => {
+    async function fetchQuestions() {
+      const res = await axios.get('/questions');
+      setQuestions(res.data);
+    }
+    fetchQuestions();
+  }, []);
+
+  return (
+    <>
+    <button onClick={fetchQuestions}>Refresh</button>
+    <ul>
+      {questions.map(question => (
+        <li key={question._id}>
+          {question.question} - {question.answer}
+        </li>
+      ))}
+    </ul>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <div>
+      <QuestionForm />
+      <QuestionList />
+    </div>
+  );
+}
+
+export default App;
